@@ -31,3 +31,6 @@ class DBClient {
     return await this.files.countDocuments();
   }
 }
+const dbClient = new DBClient();
+
+export default dbClient;
