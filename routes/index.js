@@ -1,16 +1,17 @@
 #!/usr/bin/node
+
 const express = require('express');
-const router = express.Router();
 const AppController = require('../controllers/AppController');
-const UsersController = require('../controllers/UsersController')
+const UsersController = require('../controllers/UsersController');
+const AuthController = require('../controllers/AuthController');
 
-// GET /status
+const router = express.Router();
+
 router.get('/status', AppController.getStatus);
-
-// GET /stats
 router.get('/stats', AppController.getStats);
-
-// POST /users 
-router.post('/users', UsersController.postNew)
+router.post('/users', UsersController.postNew);
+router.get('/connect', AuthController.getConnect);
+router.get('/disconnect', AuthController.getDisconnect);
+router.get('/users/me', AuthController.getMe);
 
 module.exports = router;
