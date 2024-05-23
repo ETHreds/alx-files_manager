@@ -9,8 +9,8 @@ class DBClient {
     const DATABASE = process.env.DB_DATABASE || 'files_manager'
 
     this.connected = false
-    this.uri = `mongodb+srv://${HOST}:${PORT}/${DATABASE}`
-    this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    const uri = `mongodb://${HOST}:${PORT}/${DATABASE}`
+    this.client = new MongoClient(uri, { useUnifiedTopology: true });
     this.client.connect().then(() => {
       this.connected = true;
       this.db = this.client.db();

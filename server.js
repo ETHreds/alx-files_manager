@@ -1,13 +1,13 @@
 #!/usr/bin/node
 const http = require('http')
 const express = require('express');
-const routes = require('./routes');
+const Routes = require('./routes');
 const app = express();
 
 
 const server = http.createServer(app)
 
-app.use('/', routes);
+app.use('/', Routes);
 
 
 const PORT = process.env.PORT || 5000;
