@@ -1,48 +1,28 @@
-#!/usr/bin/node
+import userRepository from '../repositories/User';
 
-const dbClient = require('../utils/db');
-const sha1 = require('sha1');
+class UsersController {
+  static async postNew(request, response) {
+    const { email, password } = request.body;
 
-async function postNew(req, res) {
-  // Extract email and password from request body
-  const { email, password } = req.body;
+    if (!email) return response.status(400).json({ error: 'Missing email' });
+    if (!password) return response.status(400).json({ error: 'Missing password' });
 
-  // Check if email or password is missing
-  if (!email) {
-    return res.status(400).json({ error: 'Missing email' });
+    const userExists = await userRepository.getUserByEmail(email);
+    if (userExists) return response.status(400).json({ error: 'Already exist' });
+
+    const userId = await userRepository.insertUser(email, password);
+
+    return response.status(201).json({ id: userId, email });
   }
 
-  if (!password) {
-    return res.status(400).json({ error: 'Missing password' });
-  }
+  static async getMe(request, response) {
+    const user = await userRepository.getUserById(request.userId);
+    if (!user) return response.status(401).json({ error: 'Unauthorized' });
 
-  try {
-    // Check if email already exists in the database
-    const existingUser = await dbClient.getUserByEmail(email);
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already exists' });
-    }
+    delete user.password;
 
-    // Hash the password using SHA1
-    const hashedPassword = sha1(password);
-
-    // Create new user object
-    const newUser = {
-      email: email,
-      password: hashedPassword
-    };
-
-    // Save the new user to the database
-    const savedUser = await dbClient.createUser(newUser);
-
-    // Respond with the new user's email and ID
-    res.status(201).json({ email: savedUser.email, id: savedUser._id });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    return response.json({ id: user._id.toString(), email: user.email });
   }
 }
 
-module.exports = {
-  createUser
-};
+export default UsersController;

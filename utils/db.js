@@ -1,28 +1,21 @@
-#!/usr/bin/node
-
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
+import { DB_HOST, DB_PORT, DB_DATABASE } from './env';
 
 class DBClient {
   constructor() {
-    const HOST = process.env.DB_HOST || 'localhost';
-    const PORT = process.env.DB_PORT || '27017';
-    const DATABASE = process.env.DB_DATABASE || 'files_manager';
+    const url = `mongodb://${DB_HOST}:${DB_PORT}`;
 
     this.connected = false;
-    const uri = `mongodb://${HOST}:${PORT}/${DATABASE}`;
-    this.client = new MongoClient(uri, { useUnifiedTopology: true });
-    this.client.connect()
-      .then(() => {
+
+    MongoClient.connect(url, (err, client) => {
+      if (!err) {
+        console.log('Mongo client ready');
+        this.db = client.db(DB_DATABASE);
         this.connected = true;
-        this.db = this.client.db();
-        this.users = this.db.collection('users');
-        this.files = this.db.collection('files');
-        console.log('Connected to MongoDB');
-      })
-      .catch(error => {
-        console.error('Error connecting to MongoDB:', error);
-        process.exit(1); // Exit the process with a non-zero exit code to indicate failure
-      });
+      } else {
+        console.log('Error connecting to Mongo');
+      }
+    });
   }
 
   isAlive() {
@@ -30,24 +23,44 @@ class DBClient {
   }
 
   async nbUsers() {
-    try {
-      return await this.users.countDocuments();
-    } catch (error) {
-      console.error('Error getting number of users:', error);
-      return 0;
-    }
+    const collection = this.db.collection('users');
+    const count = await collection.countDocuments();
+    return count;
   }
 
   async nbFiles() {
-    try {
-      return await this.files.countDocuments();
-    } catch (error) {
-      console.error('Error getting number of files:', error);
-      return 0;
-    }
+    const collection = this.db.collection('files');
+    const count = await collection.countDocuments();
+    return count;
+  }
+
+  waitConnection() {
+    return new Promise((resolve, reject) => {
+      let i = 0;
+      const repeatFct = async () => {
+        setTimeout(() => {
+          i += 1;
+          if (i >= 10) {
+            reject();
+          } else if (!this.isAlive()) {
+            repeatFct();
+          } else {
+            resolve();
+          }
+        }, 1000);
+      };
+      repeatFct();
+    });
+  }
+
+  async collection(name) {
+    await this.waitConnection();
+    return this.db.collection(name);
+  }
+
+  get client() {
+    return this.db;
   }
 }
-
 const dbClient = new DBClient();
-
-module.exports = dbClient;
+export default dbClient;

@@ -1,17 +1,39 @@
-#!/usr/bin/node
+import { Router } from 'express';
+import AppController from '../controllers/AppController';
+import UsersController from '../controllers/UsersController';
+import AuthController from '../controllers/AuthController';
+import { authMiddleware } from '../middlewares/auth';
+import FilesController from '../controllers/FilesController';
 
-const express = require('express');
-const AppController = require('../controllers/AppController');
-const UsersController = require('../controllers/UsersController');
-const AuthController = require('../controllers/AuthController');
+const routes = Router();
 
-const Router = express.Router();
+// App status
+routes.get('/status', AppController.getStatus);
+routes.get('/stats', AppController.getStats);
 
-Router.get('/status', AppController.getStatus);
-Router.get('/stats', AppController.getStats);
-Router.post('/users', UsersController.postNew);
-Router.get('/connect', AuthController.getConnect);
-Router.get('/disconnect', AuthController.getDisconnect);
-Router.get('/users/me', AuthController.getMe);
+// Users
+routes.post('/users', UsersController.postNew);
 
-module.exports = Router;
+// // Auth
+routes.get('/connect', AuthController.getConnect);
+
+// Files
+routes.get('/files/:id/data', FilesController.getFile);
+ 
+// // Authenticated routes
+routes.use(authMiddleware);
+
+// // Users
+routes.get('/users/me', UsersController.getMe);
+
+// // Auth
+routes.get('/disconnect', AuthController.getDisconnect);
+
+// // Files
+routes.post('/files', FilesController.postUpload);
+routes.get('/files', FilesController.getIndex);
+routes.get('/files/:id', FilesController.getShow);
+routes.put('/files/:id/publish', FilesController.putPublish);
+routes.put('/files/:id/unpublish', FilesController.putUnpublish);
+
+export default routes;

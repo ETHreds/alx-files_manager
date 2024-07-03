@@ -1,0 +1,58 @@
+@url = http://localhost:5000
+@token = 786d125b-d9ef-4656-8b60-8452c2ef5e6e
+
+### App status
+
+GET {{url}}/status
+
+###
+
+GET {{url}}/stats
+
+### Users
+
+POST {{url}}/users
+Content-Type: application/json
+
+{
+	"email": "lewis@mail.com",
+	"password": "123456"
+}
+
+###
+
+GET {{url}}/users/me
+X-Token: {{token}}
+
+### Auth
+
+GET {{url}}/connect
+Authorization: Basic bGV3aXNAbWFpbC5jb206MTIzNDU2
+
+###
+
+GET {{url}}/disconnect
+X-Token: {{token}}
+
+
+### Files
+
+POST {{url}}/files
+X-Token: {{token}}
+Content-Type: application/json
+
+{
+	"name": "myText.txt",
+	"type": "file",
+	"data": "SGVsbG8gV2Vic3RhY2shCg=="
+}
+
+###
+
+GET {{url}}/files/658b3a2629b1895218496ae4
+X-Token: {{token}}
+
+###
+
+GET {{url}}/files
+X-Token: {{token}}

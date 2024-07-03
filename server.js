@@ -1,18 +1,10 @@
-#!/usr/bin/node
-const http = require('http')
-const express = require('express');
-const Routes = require('./routes');
+import express from 'express';
+import routes from './routes';
+import { PORT } from './utils/env';
+
 const app = express();
 
+app.use(express.json());
+app.use(routes);
 
-const server = http.createServer(app)
-
-app.use('/', Routes);
-
-
-const PORT = process.env.PORT || 5000;
-
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`App listening on port ${PORT}`));

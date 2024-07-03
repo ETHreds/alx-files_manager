@@ -1,0 +1,23 @@
+meta {
+  name: getFile
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{url}}/files/65d5e9b45208766a789b75ba/data
+  body: none
+  auth: none
+}
+
+headers {
+  X-Token: {{token}}
+}
+
+body:json {
+  {
+    "name": "myText.txt",
+    "type": "file",
+    "data": "SGVsbG8gV2Vic3RhY2shCg=="
+  }
+}
